@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <TextView
+        android:id="@+id/txtCiudad"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Ciudad" />
+
+    <TextView
+        android:id="@+id/txtTmpActual"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Temperatura Actual" />
+
+    <TextView
+        android:id="@+id/txtSensacion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Sensacion Termica" />
+
+    <TextView
+        android:id="@+id/txtHumedad"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Humedad" />
+
+    <Button
+        android:id="@+id/buttonVolver"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Volver" />
+</LinearLayout>
