@@ -9,6 +9,9 @@ import com.example.pruebagopenux2.databinding.WeatherBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -31,7 +34,7 @@ class WeatherActivity : ComponentActivity() {
 
         val buttonBack = findViewById<Button>(R.id.buttonVolver)
         buttonBack.setOnClickListener {
-            finish() // Cierra la actividad actual y vuelve a la actividad anterior (MainActivity)
+            finish()
         }
     }
 
@@ -85,30 +88,57 @@ class WeatherActivity : ComponentActivity() {
             if (lat != null && lon != null) {
                 try {
                     val call = getRetrofi2().create(ApiServiceWeather::class.java).getWeather(lat, lon, apiKey)
-                    val response = call.execute()
+                    call.enqueue(object : Callback<WeatherResponse> {
+                        override fun onResponse(call: Call<WeatherResponse>, response: Response<WeatherResponse>) {
+                            if (response.isSuccessful) {
+                                val weatherResponse = response.body()
+                                if (weatherResponse != null) {
 
-                    if (response.isSuccessful) {
-                        val weatherResponse = response.body()
-                        if (weatherResponse != null) {
-                            val temp = weatherResponse.current.temp.toString()
-                            val feels_like = weatherResponse.current.feels_like.toString()
-                            val humidity = weatherResponse.current.humidity.toString()
+                                    val temp = weatherResponse.current.temp
+                                    val feels_like = weatherResponse.current.feels_like
+                                    val humidity = weatherResponse.current.humidity.toString()
+                                    val iconCode = weatherResponse.current.weather.firstOrNull()?.icon ?: ""
 
-                            runOnUiThread {
-                                binding.txtTmpActual.text = temp
-                                binding.txtHumedad.text = humidity
-                                binding.txtSensacion.text = feels_like
-                            }
-                        } else {
-                            runOnUiThread {
-                                showError("La respuesta de la API de clima está vacía.")
+
+                                    val tempCelsius = (temp - 273.15)
+                                    val feels_likeCelsius = (feels_like - 273.15)
+                                    val tempCelsiusFormatted = String.format("%.2f", tempCelsius)
+                                    val feels_likeCelsiusFormatted = String.format("%.2f", feels_likeCelsius)
+
+
+
+                                    val iconResourceName = "ic_weather_$iconCode"
+                                    val resourceId = resources.getIdentifier(iconResourceName, "drawable", packageName)
+
+                                    runOnUiThread {
+                                        binding.txtTmpActual.text = "La temperatura es: $tempCelsiusFormatted C"
+                                        binding.txtHumedad.text = "La Humedad actual es: $humidity"
+                                        binding.txtSensacion.text = "La sensacion termica es: $feels_likeCelsiusFormatted"
+
+                                        if (resourceId != 0) {
+                                            binding.imageViewWeatherIcon.setImageResource(resourceId)
+                                        } else {
+                                            binding.imageViewWeatherIcon.setImageResource(R.drawable.ic_default_weather)
+                                        }
+                                    }
+                                } else {
+                                    runOnUiThread {
+                                        showError("La respuesta de la API de clima está vacía.")
+                                    }
+                                }
+                            } else {
+                                runOnUiThread {
+                                    showError("Error en la llamada a la API de clima: ${response.message()}")
+                                }
                             }
                         }
-                    } else {
-                        runOnUiThread {
-                            showError("Error en la llamada a la API de clima: ${response.message()}")
+
+                        override fun onFailure(call: Call<WeatherResponse>, t: Throwable) {
+                            runOnUiThread {
+                                showError("Error en la llamada a la API de clima: ${t.message}")
+                            }
                         }
-                    }
+                    })
                 } catch (e: Exception) {
                     runOnUiThread {
                         showError("Error en la llamada a la API de clima: ${e.message}")
@@ -117,6 +147,8 @@ class WeatherActivity : ComponentActivity() {
             }
         }
     }
+
+
 
     private fun showError(errorMessage: String) {
         Log.e("WeatherActivity", errorMessage)

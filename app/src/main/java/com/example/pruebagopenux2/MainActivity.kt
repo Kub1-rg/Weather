@@ -1,10 +1,7 @@
 package com.example.pruebagopenux2
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
-import android.widget.EditText
 import androidx.activity.ComponentActivity
-import androidx.appcompat.app.AppCompatActivity
 import com.example.pruebagopenux2.databinding.CiudadesBinding
 
 class MainActivity : ComponentActivity() {
